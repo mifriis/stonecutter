@@ -6,6 +6,7 @@ import * as stone from './stone';
 
 export default function Stonecutter() {
   const { count, enqueueDelta } = stone.useStone(0);
+  const [displayCount, setDisplayCount] = useState(0); // Optimistic UI state
   const [gold, setGold] = useState(0);
   const [stallStones, setStallStones] = useState(0);
   const [purchased, setPurchased] = useState({});
@@ -36,8 +37,10 @@ useEffect(() => {
   });
 }, [gold, stallStones, purchased, loaded]); 
 
-
-  
+// Sync displayCount with actual count from useStone
+useEffect(() => {
+  setDisplayCount(count);
+}, [count]);
 
   // Apply effects from purchased shop items
   useEffect(() => {
@@ -72,9 +75,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
 
-
-
-
   // Handle buying an item
   const handleBuy = (item) => {
     if (gold >= item.cost && !purchased[item.id]) {
@@ -95,18 +95,22 @@ useEffect(() => {
   return (
     <div className="flex flex-col items-center justify-center p-6 text-center space-y-4">
       <h1 className="text-3xl font-bold">Stonecutter</h1>
-      <p className="text-lg">Stone: {count}</p>
+      <p className="text-lg">Stone: {displayCount}</p>
       <div className="space-x-4">
         <button
           className="px-6 py-3 bg-blue-600 text-white rounded-2xl shadow hover:bg-blue-700 transition"
-          onClick={() => enqueueDelta(1)}
+          onClick={() => {
+            enqueueDelta(1);
+            setDisplayCount(c => c + 1); // Optimistic update
+          }}
         >
           Click to Generate
         </button>
         <button
           onClick={() => {
-            if (count > 0) {
+            if (displayCount > 0) {
               enqueueDelta(-1);
+              setDisplayCount(c => c - 1); // Optimistic update
               setStallStones(s => s + 1);
             }
           }}
