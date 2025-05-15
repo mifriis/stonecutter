@@ -2,45 +2,47 @@ import { useState, useEffect, useRef } from 'react';
 import * as market from './market';
 import * as shop from './shop';
 import * as storage from './storage';
+import * as stone from './stone';
 
 export default function Stonecutter() {
-  const [count, setCount] = useState(0);
+  const { count, enqueueDelta } = stone.useStone(0);
   const [gold, setGold] = useState(0);
   const [stallStones, setStallStones] = useState(0);
   const [purchased, setPurchased] = useState({});
   const [loaded, setLoaded] = useState(false);
   
-  // Load once
-  useEffect(() => {
-    storage.loadState({
-      setCount,
-      setGold,
-      setStallStones,
-      setPurchased,
-      market,
-      shop,
-    });
-    setLoaded(true);
-  }, []);
-  
-  // Save when changed
-  useEffect(() => {
-    if (!loaded) return;
-    storage.saveState({
-      count,
-      gold,
-      stallStones,
-      shop: { purchased },
-      market: market.getState(),
-    });
-  }, [count, gold, stallStones, purchased, loaded]);
+ // Load once
+useEffect(() => {
+  storage.loadState({
+    enqueueDelta,
+    setGold,
+    setStallStones,
+    setPurchased,
+    market,
+    shop,
+  });
+  setLoaded(true);
+}, []);
+
+// Save when changed
+useEffect(() => {
+  if (!loaded) return;
+  storage.saveState({
+    count: stone.getCount(),  
+    gold,
+    stallStones,
+    shop: { purchased },
+    market: market.getState(),
+  });
+}, [gold, stallStones, purchased, loaded]); 
+
 
   
 
   // Apply effects from purchased shop items
   useEffect(() => {
     const activeIntervals = [];
-    const effects = { setCount, setStallStones, setGold };
+    const effects = { enqueueDelta, setStallStones, setGold };
 
     shop.shopItems.forEach(item => {
       if (purchased[item.id]) {
@@ -80,7 +82,7 @@ useEffect(() => {
       setPurchased(p => ({ ...p, [item.id]: true }));
 
       // Optional: immediate effect application
-      item.effect?.({ setCount, setStallStones, setGold });
+      item.effect?.({ enqueueDelta, setStallStones, setGold });
     }
   };
 
@@ -97,14 +99,14 @@ useEffect(() => {
       <div className="space-x-4">
         <button
           className="px-6 py-3 bg-blue-600 text-white rounded-2xl shadow hover:bg-blue-700 transition"
-          onClick={() => setCount(count + 1)}
+          onClick={() => enqueueDelta(1)}
         >
           Click to Generate
         </button>
         <button
           onClick={() => {
             if (count > 0) {
-              setCount(c => c - 1);
+              enqueueDelta(-1);
               setStallStones(s => s + 1);
             }
           }}

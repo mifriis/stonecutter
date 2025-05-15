@@ -5,8 +5,8 @@ export const shopItems = [
     description: '+1 count/sec',
     cost: 5,
     revealFraction: 0.6,
-    effect: ({ setCount }) => {
-      return setInterval(() => setCount(c => c + 1), 1000);
+    effect: ({ enqueueDelta }) => {
+      return setInterval(() => enqueueDelta(1), 1000);
     },
   },
   {
@@ -15,15 +15,10 @@ export const shopItems = [
     description: 'Hauls 1 stone/sec to the stall',
     cost: 20,
     revealFraction: 0.5,
-    effect: ({ setCount, setStallStones }) => {
+    effect: ({ enqueueDelta, setStallStones, setGold }) => {
       return setInterval(() => {
-        setCount(c => {
-          if (c <= 0) return c;
-    
-          // Queue both state updates outside the updater function to avoid nested calls
-          setStallStones(s => s + 1);
-          return c - 1;
-        });
+        enqueueDelta(-1);
+        setStallStones(s => s + 1);
       }, 1000);
     },    
   },
