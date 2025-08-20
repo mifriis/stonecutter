@@ -18,3 +18,8 @@ Always dreamt of being a stonemason? Now you can live the dream!
      npm run dev
      ```
 - The application will typically run at http://localhost:5173
+
+## Todo
+
+* Buying from shop doesnt seem to update the logic, only after a refresh does production and carting pick up
+* You relatively quickly hit the current demand for stones, something to boost demand? 

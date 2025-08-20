@@ -31,7 +31,13 @@ export function saveState(state) {
 }
 
 export function resetState() {
+  // Clear all storage
+  sessionStorage.clear();
+  localStorage.clear();
+  
+  // Set reset flag
   sessionStorage.setItem(RESET_IN_PROGRESS, '1');
-  localStorage.removeItem(STORAGE_KEY);
-  location.reload();
+  
+  // Force reload the page
+  window.location.href = window.location.pathname;
 }

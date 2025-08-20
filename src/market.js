@@ -19,5 +19,6 @@ export function fluctuateDemand() {
 }
 
 export function getStoneValue() {
-  return Math.floor(10 * demand); // e.g. 1–10 gold per stone
+  // Ensure minimum value of 1 and maximum of 10
+  return Math.max(1, Math.min(10, Math.floor(10 * demand)));
 }
